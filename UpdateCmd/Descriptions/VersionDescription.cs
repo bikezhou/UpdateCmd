@@ -7,7 +7,7 @@ using System.Text;
 namespace UpdateCmd.Descriptions
 {
     /// <summary>
-    /// 更新版本描述
+    /// 版本更新描述
     /// </summary>
     public class VersionDescription
     {
@@ -19,25 +19,21 @@ namespace UpdateCmd.Descriptions
         /// <summary>
         /// 更新版本
         /// </summary>
-        [JsonProperty("version")]
         public Version Version { get; set; }
 
         /// <summary>
         /// 最小支持版本
         /// </summary>
-        [JsonProperty("minSupport")]
         public Version MinSupport { get; set; }
 
         /// <summary>
         /// 更新内容描述
         /// </summary>
-        [JsonProperty("content")]
         public string Content { get; set; }
 
         /// <summary>
         /// 文件列表
         /// </summary>
-        [JsonProperty("files")]
         public List<FileDescription> Files { get; set; }
     }
 }

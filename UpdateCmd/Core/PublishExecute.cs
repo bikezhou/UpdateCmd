@@ -10,6 +10,15 @@ using UpdateCmd.Options;
 
 namespace UpdateCmd.Core
 {
+    /**
+     * 版本文件目录结构:
+     * 
+     * 
+     * 
+     */
+    /// <summary>
+    /// 发布版本
+    /// </summary>
     internal class PublishExecute : IExecute<PublishOptions>
     {
         private string _rootPath;
@@ -38,7 +47,23 @@ namespace UpdateCmd.Core
                 Directory.CreateDirectory(curRootPath);
             }
 
-            var curVersionFile = Path.Combine(curRootPath, $"update{(string.IsNullOrEmpty(options.Branch) ? "" : $".{options.Branch.ToLower()}")}.json");
+            var branch = options.Branch?.ToLower();
+            var isBranch = !string.IsNullOrEmpty(branch);
+
+            var mainVersionFile = Path.Combine(curRootPath, $"update.json");
+
+            var curVersionFile = mainVersionFile;
+            if (isBranch)
+            {
+                var branchRootPath = Path.Combine(curRootPath, branch);
+                if (!Directory.Exists(branchRootPath))
+                {
+                    Directory.CreateDirectory(branchRootPath);
+                }
+
+                curVersionFile = Path.Combine(branchRootPath, $"update.{branch}.json");
+            }
+
             var curVersion = new VersionDescription
             {
                 Version = new Version(),
@@ -48,6 +73,11 @@ namespace UpdateCmd.Core
             if (File.Exists(curVersionFile))
             {
                 curVersion = JsonHelper.DeserializeFromFile<VersionDescription>(curVersionFile);
+            }
+            else if (isBranch)
+            {
+                // 分支应用主干配置
+                curVersion = JsonHelper.DeserializeFromFile<VersionDescription>(mainVersionFile);
             }
 
             if (options.Version <= curVersion.Version)
@@ -60,7 +90,7 @@ namespace UpdateCmd.Core
             var srcVersion = new VersionDescription
             {
                 Version = options.Version,
-                MinSupport = options.Force ? options.Version : curVersion.MinSupport,
+                MinSupport = options.IsMinSupport ? options.Version : curVersion.MinSupport,
                 Content = string.Empty
             };
 
@@ -87,11 +117,25 @@ namespace UpdateCmd.Core
                 srcFiles.Add(fileDescription);
             }
 
+            var srcVersionPath = Path.Combine(curRootPath, srcVersion.Version.ToString());
+            if (isBranch)
+            {
+                srcVersionPath = Path.Combine(curRootPath, branch, srcVersion.Version.ToString());
+            }
+
+            var srcFilePath = "files/";
+
+            var curFilePath = $"{srcVersion.Version}/files/";
+            if (isBranch)
+            {
+                curFilePath = $"{branch}/{srcVersion.Version}/files";
+            }
+
             // 复制文件
             foreach (var src in srcFiles)
             {
                 var srcFile = src.Path;
-                var dstFile = Path.Combine(curRootPath, srcVersion.Version.ToString(), "files", src.Name);
+                var dstFile = Path.Combine(srcVersionPath, "files", src.Name);
 
                 var dstPath = Path.GetDirectoryName(dstFile);
                 if (!Directory.Exists(dstPath))
@@ -106,7 +150,7 @@ namespace UpdateCmd.Core
                 srcVersion.Files.Add(new FileDescription
                 {
                     Name = src.Name,
-                    Path = "files/",
+                    Path = srcFilePath,
                     Md5 = src.Md5
                 });
 
@@ -119,11 +163,11 @@ namespace UpdateCmd.Core
                 }
 
                 curFile.Name = src.Name;
-                curFile.Path = $"{srcVersion.Version}/files/";
                 curFile.Md5 = src.Md5;
+                curFile.Path = curFilePath;
             }
 
-            var srcVersionFile = Path.Combine(curRootPath, srcVersion.Version.ToString(), "version.json");
+            var srcVersionFile = Path.Combine(srcVersionPath, "version.json");
             JsonHelper.SerializeToFile(srcVersionFile, srcVersion, true);
 
             curVersion.Version = srcVersion.Version;

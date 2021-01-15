@@ -7,24 +7,51 @@ using System.Text;
 namespace UpdateCmd.Options
 {
     /// <summary>
-    /// publish new version
+    /// 发布新版本
     /// </summary>
     [Verb("publish", HelpText = "Publish a new version.")]
     public class PublishOptions
     {
-        [Option('n', "name", Required = true, HelpText = "Set publish name.")]
+        /// <summary>
+        /// 发布项目名称
+        /// </summary>
+        [Option("name", Required = true, HelpText = "Set publish name.")]
         public string Name { get; set; }
 
-        [Option('b', "branch", Required = false, HelpText = "Set publish branch.")]
+        /// <summary>
+        /// 发布分支名称
+        /// </summary>
+        [Option("branch", Required = false, HelpText = "Set publish branch.")]
         public string Branch { get; set; }
 
-        [Option('v', "version", Required = true, HelpText = "Set publish version.")]
+        /// <summary>
+        /// 分支依赖基准版本
+        /// </summary>
+        [Option("base", Required = false, HelpText = "Set publish branch base.")]
+        public string BranchBase { get; set; }
+
+        /// <summary>
+        /// 发布版本
+        /// </summary>
+        [Option("version", Required = true, HelpText = "Set publish version.")]
         public Version Version { get; set; }
 
-        [Option('d', "dir", Required = true, HelpText = "Set publish files directory.")]
+        /// <summary>
+        /// 发布原始文件目录
+        /// </summary>
+        [Option("dir", Required = true, HelpText = "Set publish files directory.")]
         public string Directory { get; set; }
 
-        [Option('f', "force", Required = false, HelpText = "Set this version is minsupport.")]
-        public bool Force { get; set; }
+        /// <summary>
+        /// 是否最小支持版本
+        /// </summary>
+        [Option("min", Required = false, HelpText = "Set this version is minsupport.")]
+        public bool IsMinSupport { get; set; }
+
+        /// <summary>
+        /// 发布文件完整复制
+        /// </summary>
+        [Option("full", Required = false, HelpText = "Set publish file full copy.")]
+        public bool IsFull { get; set; }
     }
 }
