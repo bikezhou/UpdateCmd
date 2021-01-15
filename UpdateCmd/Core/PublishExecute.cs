@@ -10,12 +10,6 @@ using UpdateCmd.Options;
 
 namespace UpdateCmd.Core
 {
-    /**
-     * 版本文件目录结构:
-     * 
-     * 
-     * 
-     */
     /// <summary>
     /// 发布版本
     /// </summary>
@@ -34,148 +28,117 @@ namespace UpdateCmd.Core
 
         public int Execute(PublishOptions options)
         {
-            if (!Directory.Exists(options.Directory))
+            var dir = Path.Combine(options.Directory);
+            if (!Directory.Exists(dir))
             {
                 Console.WriteLine("File directory not exists.");
                 return -1;
             }
 
-            // 当前升级项目目录
-            var curRootPath = Path.Combine(_rootPath, options.Name.ToLower());
-            if (!Directory.Exists(curRootPath))
+            var uplog = string.Empty;
+            var uplogFile = options.UpdateLogFile;
+            if (File.Exists(uplogFile))
             {
-                Directory.CreateDirectory(curRootPath);
+                uplog = File.ReadAllText(uplogFile);
             }
 
-            var branch = options.Branch?.ToLower();
-            var isBranch = !string.IsNullOrEmpty(branch);
+            // ${RootPath}/${Name}
+            var name = options.Name.ToLower();
+            var rootPath = Path.Combine(_rootPath, name);
 
-            var mainVersionFile = Path.Combine(curRootPath, $"update.json");
+            // ${RootPath}/${Name}/update.json
+            var currentJsonFile = Path.Combine(rootPath, "version.json");
 
-            var curVersionFile = mainVersionFile;
-            if (isBranch)
-            {
-                var branchRootPath = Path.Combine(curRootPath, branch);
-                if (!Directory.Exists(branchRootPath))
-                {
-                    Directory.CreateDirectory(branchRootPath);
-                }
+            // ${RootPath}/${Name}/${Version}
+            var ver = options.Version;
+            var verPath = Path.Combine(rootPath, ver.ToString());
 
-                curVersionFile = Path.Combine(branchRootPath, $"update.{branch}.json");
-            }
+            // ${RootPath}/${Name}/${Version}/files
+            var filesPath = Path.Combine(verPath, "files");
 
-            var curVersion = new VersionDescription
-            {
-                Version = new Version(),
-                MinSupport = new Version()
-            };
+            // ${RootPath}/${Name}/${Version}/version.json
+            var publishJsonFile = Path.Combine(verPath, "version.json");
 
-            if (File.Exists(curVersionFile))
-            {
-                curVersion = JsonHelper.DeserializeFromFile<VersionDescription>(curVersionFile);
-            }
-            else if (isBranch)
-            {
-                // 分支应用主干配置
-                curVersion = JsonHelper.DeserializeFromFile<VersionDescription>(mainVersionFile);
-            }
+            var current = JsonHelper.DeserializeFromFile<VersionDescription>(currentJsonFile) ?? new VersionDescription();
 
-            if (options.Version <= curVersion.Version)
+            if (ver <= current.Version)
             {
                 Console.WriteLine("New version lower than last version.");
                 return -1;
             }
 
-            var srcPath = Path.GetFullPath(options.Directory);
-            var srcVersion = new VersionDescription
+            var publish = new VersionDescription
             {
-                Version = options.Version,
-                MinSupport = options.IsMinSupport ? options.Version : curVersion.MinSupport,
-                Content = string.Empty
+                Version = ver,
+                MinSupport = options.IsMinSupport ? ver : current.MinSupport,
+                UpdateLog = uplog
             };
 
             var srcFiles = new List<FileDescription>();
-
-            foreach (var file in Directory.GetFiles(srcPath, "*", SearchOption.AllDirectories))
+            foreach (var file in Directory.GetFiles(dir, "*", SearchOption.AllDirectories))
             {
-                var name = file.Replace(srcPath, "").Replace('\\', '/').Trim('/');
+                var fn = file.Replace(dir, "").Replace('\\', '/').Trim('/');
+                var fp = file;
                 var md5 = FileHelper.GetMD5Hash(file);
 
-                var curFile = curVersion.Files.FirstOrDefault(a => a.Name.Equals(name, StringComparison.OrdinalIgnoreCase) && a.Md5.Equals(md5));
-
-                // 先前版本中已存在且md5相同,跳过
-                if (curFile != null)
-                    continue;
-
-                var fileDescription = new FileDescription
+                if (!options.IsFull)
                 {
-                    Name = name,
-                    Path = file,
+                    // 增量复制文件
+                    var eq = current.Files.FirstOrDefault(a => a.Name.Equals(fn, StringComparison.OrdinalIgnoreCase) && a.Md5.Equals(md5));
+                    if (eq != null)
+                        continue;
+                }
+
+                var srcFile = new FileDescription
+                {
+                    Name = fn,
+                    FilePath = fp,
                     Md5 = md5
                 };
 
-                srcFiles.Add(fileDescription);
+                srcFiles.Add(srcFile);
             }
 
-            var srcVersionPath = Path.Combine(curRootPath, srcVersion.Version.ToString());
-            if (isBranch)
+            foreach (var file in srcFiles)
             {
-                srcVersionPath = Path.Combine(curRootPath, branch, srcVersion.Version.ToString());
-            }
-
-            var srcFilePath = "files/";
-
-            var curFilePath = $"{srcVersion.Version}/files/";
-            if (isBranch)
-            {
-                curFilePath = $"{branch}/{srcVersion.Version}/files";
-            }
-
-            // 复制文件
-            foreach (var src in srcFiles)
-            {
-                var srcFile = src.Path;
-                var dstFile = Path.Combine(srcVersionPath, "files", src.Name);
-
+                var dstFile = Path.Combine(filesPath, file.Name);
                 var dstPath = Path.GetDirectoryName(dstFile);
                 if (!Directory.Exists(dstPath))
                 {
                     Directory.CreateDirectory(dstPath);
                 }
 
-                Console.WriteLine("Copy file:{0}", src.Name);
+                // 复制文件
+                Console.WriteLine("Copy: {0}", file.Name);
 
-                File.Copy(srcFile, dstFile, true);
+                File.Copy(file.FilePath, dstFile, true);
 
-                srcVersion.Files.Add(new FileDescription
+                publish.Files.Add(new FileDescription
                 {
-                    Name = src.Name,
-                    Path = srcFilePath,
-                    Md5 = src.Md5
+                    Name = file.Name,
+                    Md5 = file.Md5,
+                    FilePath = "files"
                 });
 
-                // 替换老版本
-                var curFile = curVersion.Files.FirstOrDefault(a => a.Name.Equals(src.Name, StringComparison.OrdinalIgnoreCase));
-
-                if (curFile == null)
+                // 更新update.json
+                var eq = current.Files.FirstOrDefault(a => a.Name.Equals(file.Name, StringComparison.OrdinalIgnoreCase));
+                if (eq == null)
                 {
-                    curVersion.Files.Add(curFile = new FileDescription());
+                    current.Files.Add(eq = new FileDescription());
                 }
 
-                curFile.Name = src.Name;
-                curFile.Md5 = src.Md5;
-                curFile.Path = curFilePath;
+                eq.Name = file.Name;
+                eq.Md5 = file.Md5;
+                eq.FilePath = filesPath.Replace(rootPath, "").Replace('\\', '/').Trim('/');
             }
 
-            var srcVersionFile = Path.Combine(srcVersionPath, "version.json");
-            JsonHelper.SerializeToFile(srcVersionFile, srcVersion, true);
+            JsonHelper.SerializeToFile(publishJsonFile, publish, true);
 
-            curVersion.Version = srcVersion.Version;
-            curVersion.MinSupport = srcVersion.MinSupport;
-            curVersion.Content = srcVersion.Content;
-            JsonHelper.SerializeToFile(curVersionFile, curVersion, true);
+            current.Version = publish.Version;
+            current.MinSupport = publish.MinSupport;
+            current.UpdateLog = publish.UpdateLog;
+            JsonHelper.SerializeToFile(currentJsonFile, current, true);
 
-            Console.WriteLine("Publish version {0} complete.", srcVersion.Version);
             return 0;
         }
     }

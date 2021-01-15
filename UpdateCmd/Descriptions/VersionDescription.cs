@@ -13,6 +13,9 @@ namespace UpdateCmd.Descriptions
     {
         public VersionDescription()
         {
+            Version = new Version();
+            MinSupport = new Version();
+            UpdateLog = string.Empty;
             Files = new List<FileDescription>();
         }
 
@@ -27,9 +30,9 @@ namespace UpdateCmd.Descriptions
         public Version MinSupport { get; set; }
 
         /// <summary>
-        /// 更新内容描述
+        /// 更新日志
         /// </summary>
-        public string Content { get; set; }
+        public string UpdateLog { get; set; }
 
         /// <summary>
         /// 文件列表

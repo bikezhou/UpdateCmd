@@ -64,6 +64,12 @@ namespace UpdateCmd.Helpers
             if (value == null)
                 return;
 
+            var path = Path.GetDirectoryName(filename);
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+
             using (var fs = new FileStream(filename, FileMode.Create, FileAccess.Write, FileShare.Write))
             {
                 using (var sw = new StreamWriter(fs, Encoding.UTF8))
