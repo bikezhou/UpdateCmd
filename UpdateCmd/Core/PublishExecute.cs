@@ -61,6 +61,7 @@ namespace UpdateCmd.Core
             {
                 Version = options.Version,
                 MinSupport = options.Force ? options.Version : curVersion.MinSupport,
+                Content = string.Empty
             };
 
             var srcFiles = new List<FileDescription>();
@@ -87,10 +88,10 @@ namespace UpdateCmd.Core
             }
 
             // 复制文件
-            foreach (var fdesc in srcFiles)
+            foreach (var src in srcFiles)
             {
-                var srcFile = fdesc.Path;
-                var dstFile = Path.Combine(curRootPath, srcVersion.Version.ToString(), "files", fdesc.Name);
+                var srcFile = src.Path;
+                var dstFile = Path.Combine(curRootPath, srcVersion.Version.ToString(), "files", src.Name);
 
                 var dstPath = Path.GetDirectoryName(dstFile);
                 if (!Directory.Exists(dstPath))
@@ -98,19 +99,39 @@ namespace UpdateCmd.Core
                     Directory.CreateDirectory(dstPath);
                 }
 
+                Console.WriteLine("Copy file:{0}", src.Name);
+
                 File.Copy(srcFile, dstFile, true);
 
                 srcVersion.Files.Add(new FileDescription
                 {
-                    Name = fdesc.Name,
+                    Name = src.Name,
                     Path = "files/",
-                    Md5 = fdesc.Md5
+                    Md5 = src.Md5
                 });
+
+                // 替换老版本
+                var curFile = curVersion.Files.FirstOrDefault(a => a.Name.Equals(src.Name, StringComparison.OrdinalIgnoreCase));
+
+                if (curFile == null)
+                {
+                    curVersion.Files.Add(curFile = new FileDescription());
+                }
+
+                curFile.Name = src.Name;
+                curFile.Path = $"{srcVersion.Version}/files/";
+                curFile.Md5 = src.Md5;
             }
 
             var srcVersionFile = Path.Combine(curRootPath, srcVersion.Version.ToString(), "version.json");
             JsonHelper.SerializeToFile(srcVersionFile, srcVersion, true);
 
+            curVersion.Version = srcVersion.Version;
+            curVersion.MinSupport = srcVersion.MinSupport;
+            curVersion.Content = srcVersion.Content;
+            JsonHelper.SerializeToFile(curVersionFile, curVersion, true);
+
+            Console.WriteLine("Publish version {0} complete.", srcVersion.Version);
             return 0;
         }
     }

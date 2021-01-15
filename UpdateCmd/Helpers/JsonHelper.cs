@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,6 +10,22 @@ namespace UpdateCmd.Helpers
 {
     public class JsonHelper
     {
+        private static JsonSerializer _serializer;
+
+        static JsonHelper()
+        {
+            _serializer = new JsonSerializer();
+            _serializer.Converters.Add(new VersionConverter());
+
+            var settings = new JsonSerializerSettings();
+            settings.Converters.Add(new VersionConverter());
+
+            JsonConvert.DefaultSettings = () =>
+            {
+                return settings;
+            };
+        }
+
         /// <summary>
         /// Json序列化
         /// </summary>
@@ -47,15 +64,14 @@ namespace UpdateCmd.Helpers
             if (value == null)
                 return;
 
-            using (var fs = new FileStream(filename, FileMode.OpenOrCreate, FileAccess.Write, FileShare.Write))
+            using (var fs = new FileStream(filename, FileMode.Create, FileAccess.Write, FileShare.Write))
             {
                 using (var sw = new StreamWriter(fs, Encoding.UTF8))
                 {
                     using (var jw = new JsonTextWriter(sw))
                     {
-                        var serializer = new JsonSerializer();
                         jw.Formatting = indented ? Formatting.Indented : Formatting.None;
-                        serializer.Serialize(jw, value, value.GetType());
+                        _serializer.Serialize(jw, value, value.GetType());
                         jw.Flush();
                     }
                 }
@@ -73,8 +89,7 @@ namespace UpdateCmd.Helpers
                 {
                     using (var jr = new JsonTextReader(sr))
                     {
-                        var serializer = new JsonSerializer();
-                        return serializer.Deserialize(jr);
+                        return _serializer.Deserialize(jr);
                     }
                 }
             }
@@ -97,8 +112,7 @@ namespace UpdateCmd.Helpers
                 {
                     using (var jr = new JsonTextReader(sr))
                     {
-                        var serializer = new JsonSerializer();
-                        return serializer.Deserialize<T>(jr);
+                        return _serializer.Deserialize<T>(jr);
                     }
                 }
             }
