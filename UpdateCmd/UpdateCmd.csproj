@@ -55,6 +55,7 @@
     <Compile Include="Core\PublishExecute.cs" />
     <Compile Include="Descriptions\FileDescription.cs" />
     <Compile Include="Descriptions\UpdateDescription.cs" />
+    <Compile Include="Descriptions\UpdateItemDescription.cs" />
     <Compile Include="Descriptions\VersionDescription.cs" />
     <Compile Include="Helpers\FileHelper.cs" />
     <Compile Include="Helpers\JsonHelper.cs" />

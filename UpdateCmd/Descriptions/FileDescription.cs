@@ -24,6 +24,6 @@ namespace UpdateCmd.Descriptions
         /// <summary>
         /// 文件路径
         /// </summary>
-        public string FilePath { get; set; }
+        public string FileUrl { get; set; }
     }
 }

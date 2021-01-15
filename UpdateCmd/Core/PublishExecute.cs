@@ -47,7 +47,7 @@ namespace UpdateCmd.Core
             var rootPath = Path.Combine(_rootPath, name);
 
             // ${RootPath}/${Name}/update.json
-            var updateJsonFile = Path.Combine(rootPath, "update.json");
+            var updateJsonFile = Path.GetFullPath(Path.Combine(rootPath, "update.json"));
 
             // ${RootPath}/${Name}/${Version}
             var ver = options.Version;
@@ -59,21 +59,7 @@ namespace UpdateCmd.Core
             // ${RootPath}/${Name}/${Version}/version.json
             var publishJsonFile = Path.Combine(verPath, "version.json");
 
-            var update = JsonHelper.DeserializeFromFile<UpdateDescription>(updateJsonFile) ?? new UpdateDescription();
-
-            var current = new VersionDescription()
-            {
-                Version = update.Version
-            };
-
-            foreach (var up in update.Updates)
-            {
-                var vp = Path.Combine(rootPath, up.Value);
-                var cur = JsonHelper.DeserializeFromFile<VersionDescription>(vp);
-
-                current.Version = cur.Version;
-                current.MinSupport = cur.MinSupport;
-            }
+            var current = JsonHelper.DeserializeFromFile<UpdateDescription>(updateJsonFile) ?? new UpdateDescription();
 
             if (ver <= current.Version)
             {
@@ -104,9 +90,9 @@ namespace UpdateCmd.Core
                 }
 
                 var srcFile = new FileDescription
-                {
+                {  
                     Name = fn,
-                    FilePath = fp,
+                    FileUrl = fp,
                     Md5 = md5
                 };
 
@@ -125,14 +111,15 @@ namespace UpdateCmd.Core
                 // 复制文件
                 Console.WriteLine("Copy: {0}", file.Name);
 
-                File.Copy(file.FilePath, dstFile, true);
+                File.Copy(file.FileUrl, dstFile, true);
 
-                publish.Files.Add(new FileDescription
+                var publishFile = new FileDescription
                 {
                     Name = file.Name,
                     Md5 = file.Md5,
-                    FilePath = "files"
-                });
+                    FileUrl = "/" + filesPath.Replace(rootPath, "").Replace('\\', '/').Trim('/')
+                };
+                publish.Files.Add(publishFile);
 
                 // 更新update.json
                 var eq = current.Files.FirstOrDefault(a => a.Name.Equals(file.Name, StringComparison.OrdinalIgnoreCase));
@@ -141,9 +128,9 @@ namespace UpdateCmd.Core
                     current.Files.Add(eq = new FileDescription());
                 }
 
-                eq.Name = file.Name;
-                eq.Md5 = file.Md5;
-                eq.FilePath = filesPath.Replace(rootPath, "").Replace('\\', '/').Trim('/');
+                eq.Name = publishFile.Name;
+                eq.Md5 = publishFile.Md5;
+                eq.FileUrl = publishFile.FileUrl;
             }
 
             JsonHelper.SerializeToFile(publishJsonFile, publish, true);
@@ -151,7 +138,17 @@ namespace UpdateCmd.Core
             current.Version = publish.Version;
             current.MinSupport = publish.MinSupport;
             current.UpdateLog = publish.UpdateLog;
+            current.Updates.Insert(0, new UpdateItemDescription
+            {
+                Version = publish.Version,
+                VersionFile = "/" + publishJsonFile.Replace(rootPath, "").Replace('\\', '/').Trim('/')
+            });
             JsonHelper.SerializeToFile(updateJsonFile, current, true);
+
+            if (File.Exists(updateJsonFile))
+            {
+                File.Copy(updateJsonFile, Path.Combine(Path.GetDirectoryName(updateJsonFile), $"update@{current.Version}.json"), true);
+            }
 
             return 0;
         }
