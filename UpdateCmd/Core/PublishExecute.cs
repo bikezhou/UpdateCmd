@@ -28,7 +28,7 @@ namespace UpdateCmd.Core
 
         public int Execute(PublishOptions options)
         {
-            var dir = Path.Combine(options.Directory);
+            var dir = Path.Combine(options.SrcPath);
             if (!Directory.Exists(dir))
             {
                 Console.WriteLine("File directory not exists.");
@@ -47,7 +47,7 @@ namespace UpdateCmd.Core
             var rootPath = Path.Combine(_rootPath, name);
 
             // ${RootPath}/${Name}/update.json
-            var currentJsonFile = Path.Combine(rootPath, "version.json");
+            var updateJsonFile = Path.Combine(rootPath, "update.json");
 
             // ${RootPath}/${Name}/${Version}
             var ver = options.Version;
@@ -59,7 +59,21 @@ namespace UpdateCmd.Core
             // ${RootPath}/${Name}/${Version}/version.json
             var publishJsonFile = Path.Combine(verPath, "version.json");
 
-            var current = JsonHelper.DeserializeFromFile<VersionDescription>(currentJsonFile) ?? new VersionDescription();
+            var update = JsonHelper.DeserializeFromFile<UpdateDescription>(updateJsonFile) ?? new UpdateDescription();
+
+            var current = new VersionDescription()
+            {
+                Version = update.Version
+            };
+
+            foreach (var up in update.Updates)
+            {
+                var vp = Path.Combine(rootPath, up.Value);
+                var cur = JsonHelper.DeserializeFromFile<VersionDescription>(vp);
+
+                current.Version = cur.Version;
+                current.MinSupport = cur.MinSupport;
+            }
 
             if (ver <= current.Version)
             {
@@ -137,7 +151,7 @@ namespace UpdateCmd.Core
             current.Version = publish.Version;
             current.MinSupport = publish.MinSupport;
             current.UpdateLog = publish.UpdateLog;
-            JsonHelper.SerializeToFile(currentJsonFile, current, true);
+            JsonHelper.SerializeToFile(updateJsonFile, current, true);
 
             return 0;
         }

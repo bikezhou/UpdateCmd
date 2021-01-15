@@ -49,13 +49,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\DownloadExecute.cs" />
     <Compile Include="Core\HelloExecute.cs" />
     <Compile Include="Core\IExecute.cs" />
     <Compile Include="Core\PublishExecute.cs" />
     <Compile Include="Descriptions\FileDescription.cs" />
+    <Compile Include="Descriptions\UpdateDescription.cs" />
     <Compile Include="Descriptions\VersionDescription.cs" />
     <Compile Include="Helpers\FileHelper.cs" />
     <Compile Include="Helpers\JsonHelper.cs" />
+    <Compile Include="Options\DownloadOptions.cs" />
     <Compile Include="Options\HelloOptions.cs" />
     <Compile Include="Options\PublishOptions.cs" />
     <Compile Include="Program.cs" />

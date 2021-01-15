@@ -37,22 +37,10 @@ namespace UpdateCmd.Options
         public bool IsFull { get; set; }
 
         /// <summary>
-        /// 发布分支名称
-        /// </summary>
-        [Option("branch", Required = false, HelpText = "Set publish branch.")]
-        public string Branch { get; set; }
-
-        /// <summary>
-        /// 分支依赖基准版本
-        /// </summary>
-        [Option("base", Required = false, HelpText = "Set publish branch base.")]
-        public string BranchBase { get; set; }
-
-        /// <summary>
         /// 发布原始文件目录
         /// </summary>
-        [Option("dir", Required = true, HelpText = "Set publish files directory.")]
-        public string Directory { get; set; }
+        [Option("path", Required = true, HelpText = "Set publish files directory.")]
+        public string SrcPath { get; set; }
 
         /// <summary>
         /// 发布版本更新日志文件
