@@ -10,11 +10,32 @@ namespace UpdateCmd.Descriptions
         public UpdateDescription()
         {
             Version = new Version();
-            Updates = new List<KeyValuePair<Version, string>>();
+            MinSupport = new Version();
+            UpdateLog = string.Empty;
+            Files = new List<FileDescription>();
+            Updates = new List<UpdateItemDescription>();
         }
 
         public Version Version { get; set; }
 
-        public List<KeyValuePair<Version, string>> Updates { get; set; }
+        /// <summary>
+        /// 最小支持版本
+        /// </summary>
+        public Version MinSupport { get; set; }
+
+        /// <summary>
+        /// 更新日志
+        /// </summary>
+        public string UpdateLog { get; set; }
+
+        /// <summary>
+        /// 文件列表
+        /// </summary>
+        public List<FileDescription> Files { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public List<UpdateItemDescription> Updates { get; set; }
     }
 }
