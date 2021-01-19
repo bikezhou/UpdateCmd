@@ -1,8 +1,8 @@
 # updatecmd升级辅助程序
 
-## updatecmdsvr服务端
+## **服务端**
 
-*updatecmd服务端*
+**updatecmdsvr**
 
 ```
 updatecmdsvr start [options]
@@ -44,7 +44,7 @@ options:
                     优先级: --except > --except-conf
     --protocol      服务协议：ftp|tcp|udp|http|file
     --root          文件保存根目录，仅在--protocol=file时可用
-    --ip            服务IP地址，仅在--protocol=ftp|tcp|udp|http时可用
+    --server        服务地址，仅在--protocol=ftp|tcp|udp|http时可用
     --port          服务端口，仅在--protocol=ftp|tcp|udp|http时可用
     --user          登录账号，需要登录时可用
     --pass          登录密码，需要登录时可用
