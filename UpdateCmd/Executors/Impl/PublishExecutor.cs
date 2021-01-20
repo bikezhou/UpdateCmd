@@ -8,7 +8,7 @@ namespace UpdateCmd.Executors.Impl
 {
     public class PublishExecutor : IExecutor<PublishOptions>
     {
-        public void Execute(PublishOptions options)
+        public virtual void Execute(PublishOptions options)
         {
             Console.WriteLine("Publis executed.");
         }

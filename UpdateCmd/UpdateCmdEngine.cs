@@ -11,18 +11,27 @@ namespace UpdateCmd
 {
     public class UpdateCmdEngine : IDisposable
     {
+        private readonly Parser _parser;
+
         private readonly IExecutor<HelloOptions> _helloExecutor;
         private readonly IExecutor<PublishOptions> _publishExecutor;
 
         public UpdateCmdEngine()
         {
+            _parser = new Parser(settings =>
+            {
+                settings.AutoVersion = false;
+                settings.AutoHelp = false;
+                settings.HelpWriter = Console.Out;
+            });
+
             _helloExecutor = new HelloExecutor();
             _publishExecutor = new PublishExecutor();
         }
 
         public void Execute(string[] args)
         {
-            Parser.Default.ParseArguments<HelloOptions, PublishOptions>(args)
+            _parser.ParseArguments<HelloOptions, PublishOptions>(args)
                 .WithParsed<HelloOptions>(HelloExecute)
                 .WithParsed<PublishOptions>(PublishExecute);
         }

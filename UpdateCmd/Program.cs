@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Resources;
 using System.Text;
 using UpdateCmd.Helpers;
+using UpdateCmd.Properties;
 
 namespace UpdateCmd
 {
@@ -22,10 +24,9 @@ namespace UpdateCmd
         private static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
         {
             var name = new AssemblyName(args.Name).Name;
-            var asm = Assembly.GetExecutingAssembly();
 
-            var dllname = $"UpdateCmd.Resources.{name}.dll";
-            using (var stream = asm.GetManifestResourceStream(dllname))
+            var dllname = $"{typeof(Program).Namespace}.Resources.{name}.dll";
+            using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(dllname))
             {
                 if (stream == null)
                     return null;

@@ -8,8 +8,7 @@
 updatecmdsvr start [options]
 
 options:
-    --port                  服务端口
-    --protocol              服务协议：ftp|tcp|udp|http
+    --urls                  服务地址列表
     --root                  文件根目录
     --userlist              有效用户列表文件，内容格式一行一个用户：<username>|<group>|<password>
     --whitelist             白名单列表文件，一行一个用户
@@ -17,6 +16,9 @@ options:
     --enable-userlist       启用用户列表，启用后需登录才能访问
     --enable-whitelist      启用白名单
     --enable-blacklist      启用黑名单
+
+urls samples:
+    file:///c:/hello/update/;http://127.0.0.1:8091/;ftp://127.0.0.1:8092/
 
 samples:
     updatecmdsvr start --protocol=tcp --port=8090 --root="./publish"
@@ -30,24 +32,26 @@ samples:
 updatecmd publish [options]
 
 options: 
-    --name          必须，发布升级包唯一名称
-    --version       必须，发布升级包版本
-    --files         必须，发布源文件所在文件夹
+    --name          必需，发布升级包名称
+    --version       必需，发布升级包版本
+    --files         必需，发布源文件所在目录
     --lowest        标志当前版本为最低版本
-    --include       包含文件/文件夹筛选配置，';'分割
-    --except        排除文件/文件夹筛选配置，';'分割
+    --include       包含文件/目录筛选配置，';'分割
+    --except        排除文件/目录筛选配置，';'分割
                     排除优先级高于包含
-    --include-conf  包含文件/文件夹筛选配置文件，一行一条
+    --include-conf  包含文件/目录筛选配置文件，换行符分割
                     优先级: --include > --include-conf
-    --except-conf   排除文件/文件夹筛选配置文件，一行一条
+    --except-conf   排除文件/目录筛选配置文件，换行符分割
                     排除优先级高于包含
                     优先级: --except > --except-conf
-    --protocol      服务协议：ftp|tcp|udp|http|file
-    --root          文件保存根目录，仅在--protocol=file时可用
-    --server        服务地址，仅在--protocol=ftp|tcp|udp|http时可用
-    --port          服务端口，仅在--protocol=ftp|tcp|udp|http时可用
+    --url           服务地址url
     --user          登录账号，需要登录时可用
     --pass          登录密码，需要登录时可用
+
+url samples:
+    file:///c:/hello/update
+    http://127.0.0.1:8091/update
+    ftp://127.0.0.1:8091/update
 
 samples:
     updatecmd publish --name=hello --version=1.0.0 --lowest --files="D:\\Hello\\Publish\\" --include="*" --except="obj/;*.pdb"
@@ -65,14 +69,17 @@ samples:
     "uplist": [
         {
             "version": "1.0.1.1201",
+            "lowest": "1.0.1",
             "url": "/hello/update@1.0.1.1201.json"
         },
         {
             "version": "1.0.1",
+            "lowest": "1.0.1",
             "url": "/hello/update@1.0.1.json"
         },
         {
             "version": "1.0.0",
+            "lowest": "1.0.0",
             "url": "/hello/update@1.0.0.json"
         }
     ]
