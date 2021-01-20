@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace UpdateCmd.Core
+namespace UpdateCmd.Executors
 {
-    public interface IExecute<T>
+    public interface IExecutor<T>
     {
-        int Execute(T options);
+        void Execute(T options);
     }
 }

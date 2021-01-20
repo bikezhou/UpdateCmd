@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using UpdateCmd.Helpers;
 
 namespace UpdateCmd
 {
@@ -12,7 +13,7 @@ namespace UpdateCmd
         {
             AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
 
-            using (var engine = new UpdateEngine())
+            using (var engine = new UpdateCmdEngine())
             {
                 engine.Execute(args);
             }
@@ -23,7 +24,7 @@ namespace UpdateCmd
             var name = new AssemblyName(args.Name).Name;
             var asm = Assembly.GetExecutingAssembly();
 
-            var dllname = $"{asm.GetName().Name}.Resources.{name}.dll";
+            var dllname = $"UpdateCmd.Resources.{name}.dll";
             using (var stream = asm.GetManifestResourceStream(dllname))
             {
                 if (stream == null)

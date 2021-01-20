@@ -6,46 +6,49 @@ using System.Text;
 
 namespace UpdateCmd.Options
 {
-    /// <summary>
-    /// 发布新版本
-    /// </summary>
-    [Verb("publish", HelpText = "Publish a new version.")]
+    [Verb("publish", HelpText = "Publish new version.")]
     public class PublishOptions
     {
-        /// <summary>
-        /// 发布项目名称
-        /// </summary>
-        [Option("name", Required = true, HelpText = "Set publish name.")]
+        [Option("name", Required = true, HelpText = "Required, Set name.")]
         public string Name { get; set; }
 
-        /// <summary>
-        /// 发布版本
-        /// </summary>
-        [Option("version", Required = true, HelpText = "Set publish version.")]
+        [Option("version", Required = true, HelpText = "Required, Set version.")]
         public Version Version { get; set; }
 
-        /// <summary>
-        /// 是否最小支持版本
-        /// </summary>
-        [Option("min", Required = false, HelpText = "Set this version is minsupport.")]
-        public bool IsMinSupport { get; set; }
+        [Option("files", Required = true, HelpText = "Required, Set source files directory.")]
+        public string Files { get; set; }
 
-        /// <summary>
-        /// 发布文件完整复制
-        /// </summary>
-        [Option("full", Required = false, HelpText = "Set publish file full copy.")]
-        public bool IsFull { get; set; }
+        [Option("lowest", HelpText = "Set this version is lowest support.")]
+        public bool Lowest { get; set; }
 
-        /// <summary>
-        /// 发布原始文件目录
-        /// </summary>
-        [Option("path", Required = true, HelpText = "Set publish files directory.")]
-        public string SrcPath { get; set; }
+        [Option("include", HelpText = "Set include file filter.")]
+        public string Include { get; set; }
 
-        /// <summary>
-        /// 发布版本更新日志文件
-        /// </summary>
-        [Option("logfile", Required = false, HelpText = "Set publish version update log file.")]
-        public string UpdateLogFile { get; set; }
+        [Option("except", HelpText = "Set except file filter.")]
+        public string Except { get; set; }
+
+        [Option("include-conf", HelpText = "Set include file filter config file.")]
+        public string IncludeConf { get; set; }
+
+        [Option("except-conf", HelpText = "Set except file filter config file.")]
+        public string ExceptConf { get; set; }
+
+        [Option("protocol", HelpText = "Set protocol<file|ftp|tcp|udp|http>.")]
+        public string Protocol { get; set; }
+
+        [Option("root", HelpText = "Set root directory, valid when protocol=file.")]
+        public string Root { get; set; }
+
+        [Option("server", HelpText = "Set connect server, valid when protocol=ftp|tcp|udp|http.")]
+        public string Server { get; set; }
+
+        [Option("port", HelpText = "Set connect server port.")]
+        public ushort Port { get; set; }
+
+        [Option("user", HelpText = "Set connect username when need.")]
+        public string User { get; set; }
+
+        [Option("pass", HelpText = "Set connect password when need.")]
+        public string Pass { get; set; }
     }
 }
