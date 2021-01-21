@@ -14,11 +14,11 @@ namespace UpdateCmd.Executors.Impl
     {
         public virtual void Execute(PublishOptions options)
         {
-            Console.WriteLine("Publis executed.");
+            var sourceFiles = FindMatchFiles(options);
 
-            var files = FindMatchFiles(options);
+            JsonHelper.SerializeToFile("upfiles.json", sourceFiles ?? new List<FileDescription>());
 
-            JsonHelper.SerializeToFile("upfiles.json", files ?? new List<FileDescription>());
+
         }
 
         /// <summary>
