@@ -37,11 +37,11 @@ options:
     --files         必需，发布源文件所在目录
     --lowest        标志当前版本为最低版本
     --include       包含文件/目录筛选配置，';'分割
-    --except        排除文件/目录筛选配置，';'分割
+    --exclude       排除文件/目录筛选配置，';'分割
                     排除优先级高于包含
     --include-conf  包含文件/目录筛选配置文件，换行符分割
                     优先级: --include > --include-conf
-    --except-conf   排除文件/目录筛选配置文件，换行符分割
+    --exclude-conf  排除文件/目录筛选配置文件，换行符分割
                     排除优先级高于包含
                     优先级: --except > --except-conf
     --url           服务地址url
@@ -105,6 +105,44 @@ samples:
     ]
 }
 ```
+版本文件列表upfiles.json
+
+```json
+{
+    "version": "1.0.0",
+    "lowest": "1.0.0",
+    "files": [
+        {
+            "name": "hello.exe",
+            "url": "/hello/1.0.0/files/hello.exe",
+            "md5": ""
+        },{
+            "name": "",
+            "url": "/hello/1.0.0/files/config/hello.config",
+            "md5": ""
+        }
+    ]
+}
+```
+
+*发布目录结构*
+
+update/
+    |-hello/
+        |-1.0.0/
+            |-files/
+                |-hello.exe
+                |-...
+            |-upfiles.json
+        |-1.0.1/
+            |-files/
+                |-hello.exe
+                |-...
+            |-upfiles.json
+        |-update.json
+        |-update@1.0.0.json
+        |-update@1.0.1.json
+        |-uplist.json
 
 ## **download**
 

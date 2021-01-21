@@ -64,13 +64,15 @@ namespace UpdateCmd.Helpers
             if (value == null)
                 return;
 
-            var path = Path.GetDirectoryName(filename);
-            if (!Directory.Exists(path))
+            var fullfilename = Path.GetFullPath(filename);
+            ;
+            var fullpath = Path.GetDirectoryName(fullfilename);
+            if (!Directory.Exists(fullpath))
             {
-                Directory.CreateDirectory(path);
+                Directory.CreateDirectory(fullpath);
             }
 
-            using (var fs = new FileStream(filename, FileMode.Create, FileAccess.Write, FileShare.Write))
+            using (var fs = new FileStream(fullfilename, FileMode.Create, FileAccess.Write, FileShare.Write))
             {
                 using (var sw = new StreamWriter(fs, Encoding.UTF8))
                 {
@@ -86,10 +88,12 @@ namespace UpdateCmd.Helpers
 
         public static object DeserializeFromFile(string filename)
         {
-            if (!File.Exists(filename))
+            var fullfilename = Path.GetFullPath(filename);
+
+            if (!File.Exists(fullfilename))
                 return null;
 
-            using (var fs = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read))
+            using (var fs = new FileStream(fullfilename, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 using (var sr = new StreamReader(fs, Encoding.UTF8))
                 {

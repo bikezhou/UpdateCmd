@@ -25,7 +25,7 @@ namespace UpdateCmd
         {
             var name = new AssemblyName(args.Name).Name;
 
-            var dllname = $"{typeof(Program).Namespace}.Resources.{name}.dll";
+            var dllname = $"{typeof(Program).Namespace}.Resources.Thirds.{name}.dll";
             using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(dllname))
             {
                 if (stream == null)

@@ -16,5 +16,8 @@ namespace UpdateCmd.Descriptions
 
         [JsonProperty("md5")]
         public string Md5 { get; set; }
+
+        [JsonProperty("length")]
+        public long Length { get; set; }
     }
 }

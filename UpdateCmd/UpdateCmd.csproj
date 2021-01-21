@@ -31,6 +31,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Resources\icons8_available_updates.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="CommandLine, Version=2.8.0.0, Culture=neutral, PublicKeyToken=5a870481e358d379, processorArchitecture=MSIL">
       <HintPath>..\packages\CommandLineParser.2.8.0\lib\net40\CommandLine.dll</HintPath>
@@ -42,6 +45,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -79,10 +83,22 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Resources\Newtonsoft.Json.dll" />
+    <EmbeddedResource Include="Resources\Thirds\Newtonsoft.Json.dll" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Resources\CommandLine.dll" />
+    <EmbeddedResource Include="Resources\Thirds\CommandLine.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\icons8_downloading_updates.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\icons8_available_updates.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\icons8_available_updates.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\icons8_downloading_updates.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

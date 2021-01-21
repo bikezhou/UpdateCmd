@@ -61,6 +61,46 @@ namespace UpdateCmd.Properties {
         }
         
         /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
+        internal static System.Drawing.Bitmap available_updates {
+            get {
+                object obj = ResourceManager.GetObject("available_updates", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似于 (图标) 的 System.Drawing.Icon 类型的本地化资源。
+        /// </summary>
+        internal static System.Drawing.Icon available_updates_ico {
+            get {
+                object obj = ResourceManager.GetObject("available_updates_ico", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
+        internal static System.Drawing.Bitmap downloading_updates {
+            get {
+                object obj = ResourceManager.GetObject("downloading_updates", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似于 (图标) 的 System.Drawing.Icon 类型的本地化资源。
+        /// </summary>
+        internal static System.Drawing.Icon downloading_updates_ico {
+            get {
+                object obj = ResourceManager.GetObject("downloading_updates_ico", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 发布升级包名称 的本地化字符串。
         /// </summary>
         internal static string Help_Publish_Name {

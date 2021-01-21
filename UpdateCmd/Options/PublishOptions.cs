@@ -24,17 +24,17 @@ namespace UpdateCmd.Options
         [Option("include", HelpText = "包含文件/目录筛选配置，';'分割")]
         public string Include { get; set; }
 
-        [Option("except", HelpText = "排除文件/目录筛选配置，';'分割，排除优先级高于包含")]
-        public string Except { get; set; }
+        [Option("exclude", HelpText = "排除文件/目录筛选配置，';'分割，排除优先级高于包含")]
+        public string Exclude { get; set; }
 
         [Option("include-conf", HelpText = "包含文件/目录筛选配置文件，换行符分割")]
         public string IncludeConf { get; set; }
 
-        [Option("except-conf", HelpText = "排除文件/目录筛选配置文件，换行符分割")]
-        public string ExceptConf { get; set; }
+        [Option("exclude-conf", HelpText = "排除文件/目录筛选配置文件，换行符分割")]
+        public string ExcludeConf { get; set; }
 
         [Option("url", HelpText = "服务地址url")]
-        public string Url { get; set; }
+        public Uri Url { get; set; }
 
         [Option("user", HelpText = "登录账号，需要登录时可用")]
         public string User { get; set; }
