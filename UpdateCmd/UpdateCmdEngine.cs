@@ -15,6 +15,7 @@ namespace UpdateCmd
 
         private readonly IExecutor<HelloOptions> _helloExecutor;
         private readonly IExecutor<PublishOptions> _publishExecutor;
+        private readonly IExecutor<DownloadOptions> _downloadExecutor;
 
         public UpdateCmdEngine()
         {
@@ -27,13 +28,20 @@ namespace UpdateCmd
 
             _helloExecutor = new HelloExecutor();
             _publishExecutor = new PublishExecutor();
+            _downloadExecutor = new DownloadExecutor();
         }
 
         public void Execute(string[] args)
         {
-            _parser.ParseArguments<HelloOptions, PublishOptions>(args)
+            _parser.ParseArguments<HelloOptions, PublishOptions, DownloadOptions>(args)
                 .WithParsed<HelloOptions>(HelloExecute)
-                .WithParsed<PublishOptions>(PublishExecute);
+                .WithParsed<PublishOptions>(PublishExecute)
+                .WithParsed<DownloadOptions>(DownloadExecute);
+        }
+
+        private void DownloadExecute(DownloadOptions options)
+        {
+            _downloadExecutor?.Execute(options);
         }
 
         private void PublishExecute(PublishOptions options)

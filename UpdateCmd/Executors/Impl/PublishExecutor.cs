@@ -59,7 +59,7 @@ namespace UpdateCmd.Executors.Impl
                         break;
                 }
 
-                Console.WriteLine("publis complete.");
+                Console.WriteLine("publish complete.");
 
             }
             catch (Exception ex)

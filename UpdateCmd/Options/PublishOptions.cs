@@ -6,7 +6,7 @@ using System.Text;
 
 namespace UpdateCmd.Options
 {
-    [Verb("publish", HelpText = "Publish new version.")]
+    [Verb("publish", HelpText = "发布新版本")]
     public class PublishOptions
     {
         [Option("name", Required = true, HelpText = "发布升级包名称")]
