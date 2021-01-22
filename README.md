@@ -127,6 +127,7 @@ samples:
 
 *发布目录结构*
 
+```
 update/
     |-hello/
         |-1.0.0/
@@ -143,6 +144,7 @@ update/
         |-update@1.0.0.json
         |-update@1.0.1.json
         |-uplist.json
+```
 
 ## **download**
 
@@ -152,8 +154,27 @@ update/
 updatecmd download [options]
 
 options:
+    --name      必需，已发布升级包名称
+    --url       服务url地址
+    --version   下载版本
+    --output    文件下载目录，默认为程序目录下的download/目录下
+
+url samples:
+    file:///D:/hello/update/
+
+samples:
+    updatecmd download --name=hello --url=file:///D:/hello/update --version=1.0.0 --output="./download"
+```
+
+下载文件目录结构：
 
 ```
+download/
+    |-$name/
+        |-hello.exe
+    |-update.$name.json
+```
+
 
 ## **pakage**
 
