@@ -161,6 +161,7 @@ namespace UpdateCmd.Executors.Impl
                 current.Name = copyFile.Name;
                 current.Url = $"/{name}/{options.Version}/{VersionFilesFolderName()}/{relativeFilePath}";
                 current.Md5 = copyFile.Md5;
+                current.Length = copyFile.Length;
 
                 upfiles.Files.Add(current);
             }
