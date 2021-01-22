@@ -19,6 +19,8 @@ namespace UpdateCmd.Descriptions
 
         public UpdateDescription()
         {
+            Version = new Version();
+            Lowest = new Version();
             Files = new List<FileDescription>();
         }
     }

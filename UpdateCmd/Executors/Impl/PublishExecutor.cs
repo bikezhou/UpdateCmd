@@ -12,17 +12,187 @@ namespace UpdateCmd.Executors.Impl
 {
     public class PublishExecutor : IExecutor<PublishOptions>
     {
+        /// <summary>
+        /// 发布根目录名称
+        /// </summary>
+        public static Func<string> PublishFolderName = () => "update";
+
+        /// <summary>
+        /// 升级描述文件名称
+        /// </summary>
+        public static Func<string> UpdateJsonFileName = () => "update.json";
+
+        /// <summary>
+        /// 升级列表描述文件名称
+        /// </summary>
+        public static Func<string> UplistJsonFileName = () => "uplist.json";
+
+        /// <summary>
+        /// 指定版本升级描述文件名称
+        /// </summary>
+        public static Func<Version, string> VersionUpdateJsonFileName = (version) => $"update@{version}.json";
+
+        /// <summary>
+        /// 版本文件目录名称
+        /// </summary>
+        public static Func<string> VersionFilesFolderName = () => "files";
+
+        /// <summary>
+        /// 版本描述文件
+        /// </summary>
+        public static Func<string> VersionFilesJsonFileName = () => "upfiles.json";
+
+
         public virtual void Execute(PublishOptions options)
         {
-            var sourceFiles = FindMatchFiles(options);
+            try
+            {
+                options.Url = options.Url ?? new Uri($"file:///{Path.GetFullPath($"./{PublishFolderName()}")}");
 
-            JsonHelper.SerializeToFile("upfiles.json", sourceFiles ?? new List<FileDescription>());
+                switch (options.Url.Scheme)
+                {
+                    case "file":
+                        FileSchemePublish(options);
+                        break;
+                    default:
+                        Console.WriteLine("not support scheme.");
+                        break;
+                }
 
+                Console.WriteLine("publis complete.");
 
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("error: {0}", ex.Message);
+            }
         }
 
         /// <summary>
-        /// Find all match files
+        /// 本地文件发布
+        /// </summary>
+        /// <param name="options"></param>
+        private void FileSchemePublish(PublishOptions options)
+        {
+            // 发布名称
+            var name = options.Name.ToLower();
+
+            // 发布根目录: ${root}
+            var rootPath = Path.GetFullPath(Path.Combine(options.Url.AbsolutePath, name));
+
+            // 发布版本根目录: ${root}/${version}
+            var versionPath = Path.Combine(rootPath, options.Version.ToString());
+
+            // 发布版本文件目录: ${root}/${version}/files
+            var versionFilePath = Path.Combine(versionPath, VersionFilesFolderName());
+
+            // 升级描述文件: ${root}/update.json
+            var fileUpdate = Path.Combine(rootPath, UpdateJsonFileName());
+
+            // 升级列表描述文件: ${root}/uplist.json
+            var fileUplist = Path.Combine(rootPath, UplistJsonFileName());
+
+            // 版本描述文件: ${root}/${version}/upfiles.json
+            var fileUpfiles = Path.Combine(versionPath, VersionFilesJsonFileName());
+
+            // 指定版本升级描述文件: ${root}/update@${version}.json
+            var fileUpdateVersion = Path.Combine(rootPath, VersionUpdateJsonFileName(options.Version));
+
+            var update = JsonHelper.DeserializeFromFile<UpdateDescription>(fileUpdate) ?? new UpdateDescription();
+            if (options.Version <= update.Version)
+            {
+                throw new Exception("current version lower than latest version.");
+            }
+
+            if (!Directory.Exists(options.Files))
+            {
+                throw new Exception("source files folder not exists. [--files]");
+            }
+
+            var sourceFiles = FindMatchFiles(options);
+
+            // 查找已修改或新增文件
+            var copyFiles = new List<FileDescription>();
+            foreach (var sourceFile in sourceFiles)
+            {
+                var current = update.Files.Where(a => a.Name.Equals(sourceFile.Name) && a.Md5.Equals(sourceFile.Md5)).FirstOrDefault();
+                if (current != null)
+                {
+                    continue;
+                }
+
+                copyFiles.Add(sourceFile);
+            }
+
+            if (copyFiles.Count == 0)
+            {
+                throw new Exception("not found any changed file.");
+            }
+
+            // 复制文件
+            var upfiles = new UpdateDescription()
+            {
+                Version = options.Version,
+                Lowest = options.Lowest ? options.Version : update.Lowest
+            };
+
+            foreach (var copyFile in copyFiles)
+            {
+                var relativeFilePath = copyFile.Url.Trim('/');
+                var srcFile = Path.Combine(options.Files, relativeFilePath);
+                var dstFile = Path.Combine(versionFilePath, relativeFilePath);
+
+                var dstPath = Path.GetDirectoryName(dstFile);
+                if (!Directory.Exists(dstPath))
+                {
+                    Directory.CreateDirectory(dstPath);
+                }
+
+                Console.WriteLine("copy file: {0}", copyFile.Name);
+                File.Copy(srcFile, dstFile, true);
+
+                var current = update.Files.Where(a => a.Name.Equals(copyFile.Name)).FirstOrDefault();
+                if (current == null)
+                {
+                    current = new FileDescription();
+                    update.Files.Add(current);
+                }
+
+                current.Name = copyFile.Name;
+                current.Url = $"/{name}/{options.Version}/{VersionFilesFolderName()}/{relativeFilePath}";
+                current.Md5 = copyFile.Md5;
+
+                upfiles.Files.Add(current);
+            }
+
+            update.Version = upfiles.Version;
+            update.Lowest = upfiles.Lowest;
+
+            JsonHelper.SerializeToFile(fileUpfiles, upfiles);
+
+            JsonHelper.SerializeToFile(fileUpdate, update);
+            JsonHelper.SerializeToFile(fileUpdateVersion, update);
+
+            var uplist = JsonHelper.DeserializeFromFile<UpdateListDescription>(fileUplist) ?? new UpdateListDescription()
+            {
+                Current = new UpdateListItemDescription()
+            };
+
+            uplist.Current.Version = update.Version;
+            uplist.Current.Lowest = update.Lowest;
+            uplist.Current.Url = $"/{name}/{UpdateJsonFileName()}";
+            uplist.UpdateList.Insert(0, new UpdateListItemDescription
+            {
+                Version = update.Version,
+                Lowest = update.Lowest,
+                Url = $"/{name}/{VersionUpdateJsonFileName(update.Version)}"
+            });
+
+            JsonHelper.SerializeToFile(fileUplist, uplist);
+        }
+
+        /// <summary>
+        /// 查找符合筛选条件的所有文件
         /// </summary>
         /// <param name="options"></param>
         /// <returns></returns>
@@ -110,8 +280,8 @@ namespace UpdateCmd.Executors.Impl
             var results = new List<FileDescription>();
             foreach (var file in includeFiles)
             {
-                var name = Path.GetFileName(file);
-                var url = "/" + file.Replace(sourcePath, "").Replace('\\', '/').Trim('/');
+                var name = file.Replace(sourcePath, "").Replace('\\', '/').Trim('/');
+                var url = "/" + name;
                 var md5 = FileHelper.GetMD5Hash(file);
                 var length = new FileInfo(file).Length;
 

@@ -16,5 +16,11 @@ namespace UpdateCmd.Descriptions
 
         [JsonProperty("url")]
         public string Url { get; set; }
+
+        public UpdateListItemDescription()
+        {
+            Version = new Version();
+            Lowest = new Version();
+        }
     }
 }
