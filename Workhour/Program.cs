@@ -27,7 +27,7 @@ namespace Workhour
             }
 
             var beginDate = DateTime.Today.AddDays(diffDay);
-            var endDate = beginDate.AddDays(7);
+            var endDate = beginDate.AddDays(7).AddSeconds(-1);
             Console.WriteLine("Week start: {0:yyyy-MM-dd}", beginDate);
             Console.WriteLine();
 
@@ -76,8 +76,8 @@ namespace Workhour
             {
                 totalMinutes += (int)(times[i * 2 + 1] - times[i * 2]).TotalMinutes;
             }
-
-            Console.WriteLine("Work hours: {0:0.##}", totalMinutes / 60f - (int)(Min(DateTime.Now, endDate) - beginDate).TotalDays);
+            var totalDays = (int)(Min(DateTime.Now, endDate) - beginDate).TotalDays + 1;
+            Console.WriteLine("Work hours: {0:0.##}", totalMinutes / 60f - totalDays);
         }
 
         static DateTime Min(DateTime a, DateTime b)
